@@ -27,11 +27,7 @@ jobs:
           echo '```json' >> "$GITHUB_STEP_SUMMARY"
           cat health.json >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: always()
-        with:
-          name: maintenance-${{ github.run_id }}
-          path: |
-            health.json
-            priorities.json
-          retention-days: 30
+          echo '### Ranked backlog' >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat priorities.json >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
