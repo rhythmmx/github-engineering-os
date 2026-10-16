@@ -1,0 +1,7 @@
+# Policy documents current capabilities. CLI never performs publication writes.
+timezone = "Asia/Kolkata"
+publication = "manual_review"
+visibility = "private"
+max_attempts = 3
+ai_generation_enabled = false
+# Schedules are configured in workflow YAML; this file does not rewrite cron.

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "repository-health-inspector",
+    "impact": 4,
+    "depth": 3,
+    "effort": 2,
+    "risk": 1,
+    "status": "planned",
+    "problem": "Offline, private repository hygiene triage"
+  },
+  {
+    "id": "existing-project-ci",
+    "impact": 5,
+    "depth": 3,
+    "effort": 3,
+    "risk": 2,
+    "status": "discovered",
+    "problem": "Execute existing native tests in platform-appropriate CI; PR required"
+  },
+  {
+    "id": "pipeline-contract-monitor",
+    "impact": 4,
+    "depth": 5,
+    "effort": 4,
+    "risk": 2,
+    "status": "discovered",
+    "problem": "Detect schema drift in data pipelines with replayable fixtures"
+  },
+  {
+    "id": "search-change-attribution",
+    "impact": 3,
+    "depth": 5,
+    "effort": 5,
+    "risk": 3,
+    "status": "discovered",
+    "problem": "Analyze search performance changes with explicit uncertainty"
+  }
+]
