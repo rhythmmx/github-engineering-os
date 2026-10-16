@@ -9,7 +9,7 @@ API reads reserve 100 requests and retry only 502/503/504, at most three attempt
 
 Remote rollout checklist: inspect source and local validation, select visibility, select a license,
 verify Actions billing allowance, push to a dedicated repository, run Quality and Maintenance
-manually, inspect artifacts, then wait for a genuine schedule event. Only that event establishes
+manually, inspect the job summary, then wait for a genuine schedule event. Only that event establishes
 scheduled execution. Account quotas are not verified by local credentials alone.
 
 Expansion milestones: durable GitHub issue task adapter; evidence-bound approval manifests;

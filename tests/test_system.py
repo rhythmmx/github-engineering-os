@@ -9,6 +9,7 @@ from engineering_os.github import GitHub
 from engineering_os.health import inspect
 from engineering_os.pipeline import build, publication_plan, rank
 from engineering_os.state import Store
+from engineering_os.policy import Policy, PolicyError
 
 
 class SystemTests(unittest.TestCase):
@@ -61,6 +62,17 @@ class SystemTests(unittest.TestCase):
             build("health-inspector", self.root, self.store)
         self.assertEqual(self.store.report()[0]["status"], "needs_repair")
 
+    def test_failed_build_can_retry_without_partial_destination(self):
+        destination = self.root / "project"
+        with patch("engineering_os.pipeline.shutil.copyfile", side_effect=OSError("write failure")):
+            with self.assertRaises(OSError):
+                build("health-inspector", destination, self.store)
+        self.assertFalse(destination.exists())
+        self.assertEqual(list(self.root.glob(".health-inspector-build-*")), [])
+        result = build("health-inspector", destination, self.store)
+        self.assertEqual(result["status"], "ready_for_review")
+        self.assertEqual(self.store.report()[0]["attempts"], 2)
+
     def test_path_traversal(self):
         with self.assertRaises(ValueError):
             build("../escape", self.root / "p", self.store)
@@ -86,6 +98,21 @@ class SystemTests(unittest.TestCase):
         self.assertFalse(
             publication_plan("owner/repo", {"status": "ready_for_review"})["writes_performed"]
         )
+
+    def test_approved_plan_requires_explicit_policy_and_successful_evidence(self):
+        validation = {"status": "ready_for_review", "checks": [{"exit_code": 0}]}
+        with self.assertRaises(PolicyError):
+            publication_plan("owner/repo", validation, approved=True)
+        policy = Policy(frozenset({"owner/repo"}), True)
+        plan = publication_plan(
+            "owner/repo", validation, approved=True, policy=policy, visibility="public"
+        )
+        self.assertTrue(plan["approved"])
+        self.assertFalse(plan["writes_performed"])
+        with self.assertRaises(PolicyError):
+            publication_plan(
+                "unrelated/repo", validation, approved=True, policy=policy, visibility="public"
+            )
 
     def test_transient_retry(self):
         bad = subprocess.CompletedProcess([], 1, "", "HTTP 503")

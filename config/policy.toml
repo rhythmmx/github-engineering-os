@@ -1,7 +1,9 @@
-# Policy documents current capabilities. CLI never performs publication writes.
+# Scope for zero-budget portfolio maintenance. This does not set GitHub billing.
+# Schedule is controlled by the desktop automation or workflow YAML, not this file.
 timezone = "Asia/Kolkata"
-publication = "manual_review"
-visibility = "private"
-max_attempts = 3
-ai_generation_enabled = false
-# Schedules are configured in workflow YAML; this file does not rewrite cron.
+monthly_budget_usd = 0
+hosted_providers_enabled = false
+publication_enabled = true
+allowed_repositories = ["rhythmmx/github-engineering-os", "rhythmmx/contract-sentinel"]
+# Publication requires trusted passing execution evidence and public visibility.
+# New repositories require an explicit allowlist update before any write.
