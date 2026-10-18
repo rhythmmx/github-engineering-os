@@ -4,7 +4,8 @@ from pathlib import Path
 
 from .github import GitHub
 from .health import inspect
-from .pipeline import build, rank
+from .pipeline import build, publication_plan, rank
+from .policy import Policy
 from .state import Store
 
 
@@ -23,6 +24,10 @@ def main():
     activity.add_argument("owner")
     report = sub.add_parser("report")
     report.add_argument("--state", type=Path, default=Path("state/tasks.db"))
+    publication = sub.add_parser("publication-plan")
+    publication.add_argument("repository")
+    publication.add_argument("validation", type=Path)
+    publication.add_argument("--policy", type=Path, required=True)
     args = parser.parse_args()
     result: dict | list
     if args.command == "health":
@@ -31,6 +36,14 @@ def main():
         result = rank(json.loads(args.backlog.read_text(encoding="utf-8")))
     elif args.command == "activity":
         result = GitHub().activity(args.owner)
+    elif args.command == "publication-plan":
+        result = publication_plan(
+            args.repository,
+            json.loads(args.validation.read_text(encoding="utf-8")),
+            approved=True,
+            policy=Policy.load(args.policy),
+            visibility="public",
+        )
     else:
         store = Store(args.state)
         try:

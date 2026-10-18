@@ -11,10 +11,17 @@ Verified on Windows, Python 3.12, in a newly created virtual environment:
 - Standalone health inspector generated, compiled and passed its two execution tests.
 - Authenticated live GitHub API reads returned repository permissions and activity data.
 
-Not yet verified: GitHub-hosted CI execution, genuine scheduled execution, account billing
+Verified remotely: Quality workflow passed on GitHub-hosted Ubuntu, run 38942874936.
+Maintenance report passed on manual dispatch, run 38942879998.
+
+Not yet verified: genuine scheduled execution, account billing
 allowance, native Swift/Flutter suites, dependency vulnerability scans, coverage, cloud deployment,
 arbitrary model implementation, autonomous repair, distributed task state, or automatic publishing.
 Workflow YAML parse checks do not establish GitHub execution correctness.
 
 The core foundation is usable locally. This is not a completed autonomous engineering service.
 The full requested operating system still requires the expansion milestones in OPERATIONS.md.
+
+Public repository: https://github.com/rhythmmx/github-engineering-os
+
+First substantive companion project: https://github.com/rhythmmx/contract-sentinel

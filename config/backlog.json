@@ -34,5 +34,41 @@
     "risk": 3,
     "status": "discovered",
     "problem": "Analyze search performance changes with explicit uncertainty"
+  },
+  {
+    "id": "llm-evaluation-workbench",
+    "impact": 5,
+    "depth": 5,
+    "effort": 4,
+    "risk": 3,
+    "status": "discovered",
+    "problem": "Measure grounded-answer quality, prompt injection resistance, latency and token cost with replayable evaluation datasets"
+  },
+  {
+    "id": "ai-workflow-service",
+    "impact": 4,
+    "depth": 5,
+    "effort": 5,
+    "risk": 3,
+    "status": "discovered",
+    "problem": "Durable AI-assisted jobs with human approval, provider budgets and replayable execution"
+  },
+  {
+    "id": "react-motion-observatory",
+    "impact": 3,
+    "depth": 4,
+    "effort": 4,
+    "risk": 2,
+    "status": "discovered",
+    "problem": "Accessible Next.js/React 3D telemetry exploration with reduced-motion fallback and tested Node API"
+  },
+  {
+    "id": "java-durable-job-engine",
+    "impact": 4,
+    "depth": 5,
+    "effort": 5,
+    "risk": 2,
+    "status": "discovered",
+    "problem": "Recoverable Java job scheduling with lease ownership, PostgreSQL state and failure telemetry"
   }
 ]
