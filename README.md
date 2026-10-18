@@ -46,12 +46,12 @@ manual research; scores in the seed backlog are estimates.
 Edit cron in YAML to change the schedule; the TOML timezone is informational.
 GitHub schedules can be delayed and are not a continuous worker or SLA.
 Each maintenance job is read-only, limited to five minutes, concurrency-controlled,
-and uploads a 30-day report artifact. Failed runs use GitHub's configured Actions notifications.
+and writes health and backlog reports to the job summary without artifact uploads. Failed runs use GitHub's configured Actions notifications.
 No external notification channel is configured. CI performs the longer generation check separately.
 
 Pause using `gh workflow disable maintenance.yml -R OWNER/REPO`; resume with `gh workflow enable`.
 Use `gh workflow run maintenance.yml -R OWNER/REPO` to validate after resuming.
-Inspect the Actions summary, artifacts, and `gh run list -R OWNER/REPO`.
+Inspect the Actions summary and `gh run list -R OWNER/REPO`.
 
 ## State, failure recovery and publication
 
@@ -76,4 +76,4 @@ The reviewer is a separate test process, not an independent AI reviewer. No arbi
 generation, automatic repair, automatic publication, autonomous project selection, releases,
 cost analytics, dashboard UI, or cross-repository maintenance writes are claimed.
 No license is granted yet: owner licensing approval is required before public distribution.
-See `docs/AUDIT.md`, `docs/VALIDATION.md` and `docs/OPERATIONS.md` for actual evidence and blockers.
+See `docs/AUDIT.md`, `docs/VALIDATION.md` and `docs/OPERATIONS.md` for actual evidence and blockers. See `docs/ZERO-BUDGET.md` for the daily multi-agent desktop continuation and policy boundaries.
