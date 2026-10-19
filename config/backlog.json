@@ -41,8 +41,9 @@
     "depth": 5,
     "effort": 4,
     "risk": 3,
-    "status": "discovered",
-    "problem": "Measure grounded-answer quality, prompt injection resistance, latency and token cost with replayable evaluation datasets"
+    "status": "building",
+    "problem": "Measure grounded-answer quality, prompt injection resistance, latency and token cost with replayable evaluation datasets",
+    "milestone": "Offline deterministic response replay checks; no live provider or semantic judge"
   },
   {
     "id": "ai-workflow-service",

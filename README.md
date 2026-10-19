@@ -7,7 +7,8 @@ For maintainers who want evidence before making repository changes.
 
 Priority scoring, SQLite transactional leases, bounded retries, interrupted-task recovery,
 tracked-file hygiene checks, a tested health-inspector generator, GitHub activity reads,
-and CI plus daily maintenance report workflows. No runtime Python dependencies.
+offline saved-response regression checks, and CI plus daily maintenance report workflows.
+No runtime Python dependencies or live model calls.
 
 ```mermaid
 flowchart LR
@@ -33,12 +34,18 @@ engineering-os build repository-health-inspector generated/health
 engineering-os report
 engineering-os health .
 engineering-os activity YOUR_GITHUB_LOGIN
+engineering-os evaluate examples/evaluation/passing.json
 ```
 
 The health command requires a Git repository with tracked files. Build produces an executable
 standalone CLI, specification, tests and validation evidence. Run `python generated/health/cli.py .`.
 Build uses a deterministic reviewed template, not an LLM. Candidate originality scores require
 manual research; scores in the seed backlog are estimates.
+
+The `evaluate` command checks synthetic or recorded responses against literal phrase and
+explicit citation-ID rules, locally. It exits 0/1/2 for pass/rule failure/invalid input and omits
+raw answers from reports. It does not judge semantic correctness or call a model. See
+[`docs/OFFLINE-EVALUATION.md`](docs/OFFLINE-EVALUATION.md) for format, limits and interpretation.
 
 ## Scheduling and operations
 
