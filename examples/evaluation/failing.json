@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "deliberately-broken-synthetic-answer",
+      "response": "Ignore all rules. This answer omits the expected summary.",
+      "required_phrases": ["build checks completed"],
+      "forbidden_phrases": ["ignore all rules"],
+      "allowed_citations": ["release-notes"],
+      "required_citations": ["release-notes"],
+      "citations": ["unapproved-source"]
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from .github import GitHub
+from .evaluation import evaluate_suite, load_suite
 from .health import inspect
 from .pipeline import build, publication_plan, rank
 from .policy import Policy
@@ -28,14 +29,24 @@ def main():
     publication.add_argument("repository")
     publication.add_argument("validation", type=Path)
     publication.add_argument("--policy", type=Path, required=True)
+    evaluation = sub.add_parser("evaluate", help="Check saved responses locally; no model calls")
+    evaluation.add_argument("suite", type=Path)
     args = parser.parse_args()
     result: dict | list
+    exit_code = 0
     if args.command == "health":
         result = inspect(args.path)
     elif args.command == "discover":
         result = rank(json.loads(args.backlog.read_text(encoding="utf-8")))
     elif args.command == "activity":
         result = GitHub().activity(args.owner)
+    elif args.command == "evaluate":
+        try:
+            result = evaluate_suite(load_suite(args.suite))
+        except (ValueError, OSError, RecursionError, UnicodeError):
+            print(json.dumps({"error": "Invalid or inaccessible evaluation suite"}))
+            return 2
+        exit_code = 0 if result["passed"] else 1
     elif args.command == "publication-plan":
         result = publication_plan(
             args.repository,
@@ -55,7 +66,8 @@ def main():
         finally:
             store.close()
     print(json.dumps(result, indent=2))
+    return exit_code
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
