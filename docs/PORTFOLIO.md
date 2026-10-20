@@ -8,7 +8,7 @@ Avoid listing technology names as evidence of implemented skills.
 |---|---|---|
 | Engineering OS foundation | Task leases, generated-project checks, real hosted CI | Implemented |
 | Contract Sentinel | Python desktop application, bounded streaming, compatibility rules, SQLite | Published; local checks passed; hosted CI tracked in companion repository |
-| LLM evaluation workbench | Deterministic saved-response phrase/citation checks and synthetic fixtures | First offline component; provider adapters and semantic evaluation not implemented |
+| LLM evaluation workbench | Saved-response phrase/citation checks, matched-baseline regression comparison and synthetic fixtures | Offline components; provider adapters and semantic evaluation not implemented |
 | AI automation service | Human review boundary, idempotent workflow state, failure recovery | Proposed |
 | Next.js / React motion experience | Accessible 3D interaction, reduced-motion mode, performance evidence, backend API | Proposed |
 | Java orchestration service | Durable jobs, lease ownership, integration tests and observable failure recovery | Proposed |

@@ -20,3 +20,4 @@ jobs:
       - run: python -m unittest discover -s tests -v
       - run: engineering-os build repository-health-inspector generated/health
       - run: engineering-os evaluate examples/evaluation/passing.json
+      - run: engineering-os compare-evaluations examples/evaluation/passing.json examples/evaluation/passing.json
