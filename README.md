@@ -35,6 +35,7 @@ engineering-os report
 engineering-os health .
 engineering-os activity YOUR_GITHUB_LOGIN
 engineering-os evaluate examples/evaluation/passing.json
+engineering-os compare-evaluations examples/evaluation/passing.json examples/evaluation/passing.json
 ```
 
 The health command requires a Git repository with tracked files. Build produces an executable
@@ -46,6 +47,8 @@ The `evaluate` command checks synthetic or recorded responses against literal ph
 explicit citation-ID rules, locally. It exits 0/1/2 for pass/rule failure/invalid input and omits
 raw answers from reports. It does not judge semantic correctness or call a model. See
 [`docs/OFFLINE-EVALUATION.md`](docs/OFFLINE-EVALUATION.md) for format, limits and interpretation.
+`compare-evaluations` detects newly failing rule categories against a matching baseline; unchanged
+known failures do not fail that regression gate. See [`docs/EVALUATION-COMPARISON.md`](docs/EVALUATION-COMPARISON.md).
 
 ## Scheduling and operations
 

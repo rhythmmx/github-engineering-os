@@ -4,6 +4,7 @@ from pathlib import Path
 
 from .github import GitHub
 from .evaluation import evaluate_suite, load_suite
+from .comparison import compare_suites
 from .health import inspect
 from .pipeline import build, publication_plan, rank
 from .policy import Policy
@@ -31,6 +32,11 @@ def main():
     publication.add_argument("--policy", type=Path, required=True)
     evaluation = sub.add_parser("evaluate", help="Check saved responses locally; no model calls")
     evaluation.add_argument("suite", type=Path)
+    comparison = sub.add_parser(
+        "compare-evaluations", help="Compare saved runs under matching evaluation rules"
+    )
+    comparison.add_argument("baseline", type=Path)
+    comparison.add_argument("candidate", type=Path)
     args = parser.parse_args()
     result: dict | list
     exit_code = 0
@@ -45,6 +51,13 @@ def main():
             result = evaluate_suite(load_suite(args.suite))
         except (ValueError, OSError, RecursionError, UnicodeError):
             print(json.dumps({"error": "Invalid or inaccessible evaluation suite"}))
+            return 2
+        exit_code = 0 if result["passed"] else 1
+    elif args.command == "compare-evaluations":
+        try:
+            result = compare_suites(load_suite(args.baseline), load_suite(args.candidate))
+        except (ValueError, OSError, RecursionError, UnicodeError):
+            print(json.dumps({"error": "Invalid, inaccessible, or mismatched evaluation suites"}))
             return 2
         exit_code = 0 if result["passed"] else 1
     elif args.command == "publication-plan":

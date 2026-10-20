@@ -18,6 +18,9 @@ engineering-os evaluate examples/evaluation/failing.json
 Exit codes are 0 for all cases passing, 1 for any rule failure, 2 for malformed/inaccessible input.
 The second command deliberately exits 1 and produces all four failure codes. Module invocation
 `python -m engineering_os.cli evaluate PATH` has the same exit-code behavior as the installed command.
+For a baseline regression gate that permits unchanged known failures, see
+[`EVALUATION-COMPARISON.md`](EVALUATION-COMPARISON.md). The absolute `evaluate` gate still fails on
+any rule failure; comparison reports its distinct meaning explicitly.
 
 ## Suite version 1
 
