@@ -47,10 +47,14 @@ https://docs.github.com/en/billing/concepts/product-billing/github-actions
 ## Build recovery boundary
 
 Generation and checks run in an invocation-owned staging directory. Failed checks never publish
-partial output; ordinary write/test failures can retry the same destination. Completed output is
-promoted only after checks. A hard process stop can leave a hidden staging directory; inspect and
-remove it manually only after confirming no worker owns it. Existing user output is never reused.
+partial output; ordinary write/test failures can retry the same destination. Before promotion,
+the active lease owner records the destination and exact six-file hash inventory in local SQLite.
+A retry can adopt matching validated output without executing or changing existing files.
+Unowned, changed or incomplete output fails closed. See [RECOVERY.md](RECOVERY.md).
 
-Filesystem promotion and SQLite state commit are not one transaction. A crash between them leaves
-verified output that needs manual reconciliation before retrying; no crash-complete or distributed
-recovery is claimed. This boundary must be solved before unattended arbitrary code generation.
+Filesystem promotion and SQLite completion remain separate transactions. Recovery handles process
+interruption using trusted local state and cooperative workers; it does not atomically fence
+filesystem writes after lease expiry or concurrent local tampering. File/directory fsync is not
+performed, so power-loss durability is not guaranteed. A hard stop can leave hidden staging files;
+inspect them manually after confirming no worker owns them. Attempts remain capped at three.
+No distributed recovery, arbitrary generation or automatic publication is enabled.

@@ -9,8 +9,70 @@ import sys
 from tempfile import TemporaryDirectory
 from pathlib import Path
 
-from .state import Store
+from .state import PROMOTION_FILES, Store
 from .policy import Policy, PolicyError
+
+MAX_ARTIFACT_BYTES = 2_000_000
+
+
+def _is_link(path: Path) -> bool:
+    return path.is_symlink() or getattr(path, "is_junction", lambda: False)()
+
+
+def _artifact_bytes(target: Path) -> dict[str, bytes]:
+    """Read only the exact small, regular, nonlinked template artifacts."""
+    try:
+        if _is_link(target) or not target.is_dir():
+            raise ValueError
+        if {entry.name for entry in target.iterdir()} != PROMOTION_FILES:
+            raise ValueError
+        content = {}
+        for name in sorted(PROMOTION_FILES):
+            artifact = target / name
+            if _is_link(artifact) or not artifact.is_file():
+                raise ValueError
+            with artifact.open("rb") as stream:
+                data = stream.read(MAX_ARTIFACT_BYTES + 1)
+            if len(data) > MAX_ARTIFACT_BYTES:
+                raise ValueError
+            content[name] = data
+        return content
+    except (OSError, ValueError):
+        raise FileExistsError("Output is not an exact recoverable template artifact set") from None
+
+
+def _recover_promotion(task_id: str, target: Path, store: Store) -> dict:
+    receipt = store.load_promotion(task_id)
+    if receipt is None or _is_link(target) or Path(receipt["destination"]) != target.resolve():
+        raise FileExistsError("Existing output does not match a recorded promotion")
+    content = _artifact_bytes(target)
+    inventory = {name: hashlib.sha256(data).hexdigest() for name, data in content.items()}
+    if inventory != receipt["inventory"]:
+        raise FileExistsError("Existing output differs from its recorded promotion")
+    try:
+        report = json.loads(content["validation.json"].decode("utf-8"))
+        spec = json.loads(content["spec.json"].decode("utf-8"))
+        checks = report.get("checks") if isinstance(report, dict) else None
+        if (
+            not isinstance(spec, dict)
+            or spec.get("id") != task_id
+            or not isinstance(report, dict)
+            or report.get("status") != "ready_for_review"
+            or report.get("source_sha256") != inventory["health.py"]
+            or not isinstance(checks, list)
+            or not checks
+            or any(
+                not isinstance(check, dict)
+                or type(check.get("exit_code")) is not int
+                or check["exit_code"] != 0
+                for check in checks
+            )
+        ):
+            raise ValueError
+    except (ValueError, UnicodeError, RecursionError):
+        raise FileExistsError("Recorded output has invalid validation evidence") from None
+    store.finish(task_id, "ready_for_review", report["source_sha256"])
+    return {**report, "recovered": True}
 
 
 def rank(candidates: list[dict]) -> list[dict]:
@@ -42,8 +104,10 @@ def build(task_id: str, destination: Path, store: Store) -> dict:
             "reason": "Already completed, leased, or retry budget exhausted",
         }
     try:
-        if destination.exists() or destination.is_symlink():
-            raise FileExistsError("Destination exists; refusing to overwrite")
+        if _is_link(destination):
+            raise FileExistsError("Linked destinations cannot be recovered or overwritten")
+        if destination.exists():
+            return _recover_promotion(task_id, destination, store)
         target = destination.resolve()
         target.parent.mkdir(parents=True, exist_ok=True)
         # Staging is owned by this invocation; never delete or reuse caller output.
@@ -92,8 +156,13 @@ def build(task_id: str, destination: Path, store: Store) -> dict:
                 encoding="utf-8",
             )
             checks = [
-                [sys.executable, "-m", "compileall", "-q", "."],
-                [sys.executable, "-m", "unittest", "-v"],
+                [
+                    sys.executable,
+                    "-c",
+                    "from pathlib import Path; "
+                    "[compile(p.read_bytes(), str(p), 'exec') for p in Path('.').glob('*.py')]",
+                ],
+                [sys.executable, "-B", "-m", "unittest", "-v"],
             ]
             evidence = []
             for command in checks:
@@ -113,13 +182,20 @@ def build(task_id: str, destination: Path, store: Store) -> dict:
             (destination / "validation.json").write_text(
                 json.dumps(report, indent=2), encoding="utf-8"
             )
-            if target.exists() or target.is_symlink():
+            files = _artifact_bytes(destination)
+            inventory = {name: hashlib.sha256(data).hexdigest() for name, data in files.items()}
+            store.prepare_promotion(task_id, target, inventory)
+            if target.exists() or _is_link(target):
                 raise FileExistsError("Destination appeared during build; refusing to overwrite")
             destination.rename(target)
         store.finish(task_id, "ready_for_review", digest)
         return report
     except Exception as exc:
-        store.finish(task_id, "needs_repair", type(exc).__name__)
+        try:
+            store.finish(task_id, "needs_repair", type(exc).__name__)
+        except ValueError:
+            # An expired worker must not update a replacement worker's task.
+            pass
         raise
 
 

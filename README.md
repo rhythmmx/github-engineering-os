@@ -67,10 +67,13 @@ Inspect the Actions summary and `gh run list -R OWNER/REPO`.
 
 Local builds persist task state in `state/tasks.db`; leases expire after 15 minutes and
 attempts stop at three. Back up SQLite with its backup API while idle. Never share the DB publicly.
-Existing output directories are never overwritten. To repair, inspect failed output, choose a fresh
-destination and retry; clear exhausted attempts only after diagnosing the failure.
+Existing output directories are never overwritten. After interruption between promotion and task
+completion, retrying the same task, destination and database can recover matching validated output
+without executing or rewriting it. A trusted local receipt must match all six files. Wait for the
+old lease to expire; the three-attempt limit still applies. Unowned or changed output requires
+manual inspection. See [local recovery boundaries](docs/RECOVERY.md).
 The scheduled job is stateless and performs no builds or publication. Distributed durable task
-storage and cross-run build recovery are not yet implemented; artifacts are reports, not a task queue.
+storage and recovery across hosted jobs are not implemented.
 
 `publication_plan` validates readiness and creates an inert private publication plan. It never
 creates repositories or pushes code. A maintainer must review the source, validation evidence,
