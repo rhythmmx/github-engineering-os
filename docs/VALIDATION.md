@@ -25,3 +25,12 @@ The full requested operating system still requires the expansion milestones in O
 Public repository: https://github.com/rhythmmx/github-engineering-os
 
 First substantive companion project: https://github.com/rhythmmx/contract-sentinel
+
+## Local recovery validation — 2026-10-22
+
+The suite now has 51 passing tests. Eleven recovery tests cover interruption after promotion,
+restart adoption without subprocess execution or changed bytes, metadata failure, altered and
+unexpected files, unowned/wrong-destination output, persisted receipts, stale-owner exclusion,
+invalid inventory, corrupt receipts and missing/expired leases. Ruff and mypy pass.
+Recovery assumes trusted local state and cooperative workers; see RECOVERY.md for remaining races
+and power-loss limitations. The original dated evidence above remains historical.
