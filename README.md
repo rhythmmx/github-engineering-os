@@ -38,7 +38,11 @@ engineering-os evaluate examples/evaluation/passing.json
 engineering-os compare-evaluations examples/evaluation/passing.json examples/evaluation/passing.json
 ```
 
-The health command requires a Git repository with tracked files. Build produces an executable
+The health command requires a Git repository with tracked files. It inspects the entire repository
+index even when passed a subdirectory: findings use repository-root paths, not just that subtree.
+Untracked files are excluded; unusual filename bytes are handled without printing file names.
+It examines path names only, not file contents, and does not recurse into submodule repositories.
+Build produces an executable
 standalone CLI, specification, tests and validation evidence. Run `python generated/health/cli.py .`.
 Build uses a deterministic reviewed template, not an LLM. Candidate originality scores require
 manual research; scores in the seed backlog are estimates.
