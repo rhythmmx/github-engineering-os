@@ -34,3 +34,13 @@ unexpected files, unowned/wrong-destination output, persisted receipts, stale-ow
 invalid inventory, corrupt receipts and missing/expired leases. Ruff and mypy pass.
 Recovery assumes trusted local state and cooperative workers; see RECOVERY.md for remaining races
 and power-loss limitations. The original dated evidence above remains historical.
+
+## Repository-wide health scope - 2026-10-25
+
+Windows suite: 58 tests run successfully, with two POSIX-only filename tests skipped (56 executed).
+Seven new real-Git tests cover identical root/nested/sibling reports, tracked-only findings,
+private filename/content exclusion, Unicode paths, distinct invalid-directory/non-repository errors,
+and POSIX newline/non-UTF8 filenames. The latter two require hosted Linux execution before claiming
+coverage. Ruff lint/format and mypy pass. A fresh wheel and pip check passed; both installed CLI and
+newly generated standalone inspector produced identical root/subdirectory reports. Generated code
+passed its execution checks. Health findings remain filename heuristics, not a security audit.

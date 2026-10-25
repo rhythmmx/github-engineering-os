@@ -1,6 +1,6 @@
 """Offline, deterministic repository checks. Never reads secret file contents."""
 
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import subprocess
 
 
@@ -9,12 +9,14 @@ def inspect(path: Path) -> dict:
     if not path.is_dir():
         raise ValueError("Repository directory does not exist")
     result = subprocess.run(
-        ["git", "-C", str(path), "ls-files", "-z"],
+        ["git", "-C", str(path), "ls-files", "--full-name", "-z", "--", ":/"],
         capture_output=True,
         timeout=30,
         check=True,
     )
-    files = sorted(result.stdout.decode("utf-8").split("\0"))
+    # Git paths are root-relative POSIX paths. Surrogate escape preserves arbitrary
+    # filename bytes without decoding failures; filenames never enter the report.
+    files = sorted(result.stdout.decode("utf-8", errors="surrogateescape").split("\0"))
     files = [f for f in files if f]
     findings = []
 
@@ -27,9 +29,9 @@ def inspect(path: Path) -> dict:
         flag("missing_ci", "high", "Add CI to execute the existing quality checks")
     if not any("test" in f.lower() or "spec" in f.lower() for f in files):
         flag("no_test_paths", "medium", "No test-named paths found; inspect manually")
-    if not any(Path(f).name.lower().startswith("license") for f in files):
+    if not any(PurePosixPath(f).name.lower().startswith("license") for f in files):
         flag("missing_license", "info", "Owner must choose licensing before public reuse")
-    if any(Path(f).name in {".env", "id_rsa", "id_ed25519"} for f in files):
+    if any(PurePosixPath(f).name in {".env", "id_rsa", "id_ed25519"} for f in files):
         flag("sensitive_filename", "high", "Potential sensitive file tracked; inspect privately")
     return {
         "schema_version": 1,
